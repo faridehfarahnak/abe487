@@ -1,3 +1,36 @@
 #!/bin/bash
 
-echo "OK"
+set -u  #force variable initialization
+
+Filename=""
+
+# Usage
+function Usage(){
+	printf " Usage: %s Filename\n" $(basename $0)
+	
+	echo " Required argument:"
+	echo
+	echo " Filename"
+	echo
+	
+	exit ${1:-0} 
+
+}
+
+if [[ $# -lt 1 ]]; then
+	Usage 1
+else
+	Filename=$1
+fi
+
+# if filename length is less than one
+if [[ ${#Filename} -lt 1 ]]; then
+	echo "Filename is required\n"
+	exit 1
+fi
+
+i=0
+while read line; do
+	let i++
+	printf "%d %s\n" $i $line
+done < $Filename
