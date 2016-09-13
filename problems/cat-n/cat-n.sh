@@ -23,9 +23,16 @@ else
 	Filename=$1
 fi
 
+
 # if filename length is less than one
 if [[ ${#Filename} -lt 1 ]]; then
-	echo "Filename is required\n"
+	printf "Filename cannot be zero length.\n"
+	exit 1
+fi
+
+# if file does not exist or empty size (0 byte)
+if [[ ! -s $Filename ]]; then
+	printf " Either file: \"%s\" does not exist or it is empty.\n" $Filename 
 	exit 1
 fi
 
