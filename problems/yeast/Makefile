@@ -15,6 +15,7 @@ fasta:
 
 
 genome: fasta
+	cat fasta/chr*.fa > fasta/genome.fa
 	for i in {01..16}; do sed 's/^>.*/>/' ./fasta/chr$$i.fsa > test >> fasta/genome.fa; done
 	sed 's/^>.*/>/' ./fasta/chrmt.fsa > test >> fasta/genome.fa
 	rm test
@@ -22,10 +23,12 @@ genome: fasta
 	
 
 chr-count: genome
+	grep '^>' fasta/genome.fa > chr-count
 	count=$$(grep -c '>' fasta/genome.fa); size=$$(echo "$$count-1" | bc); echo $$size  > chr-count
 
 
 chr-size: genome
+	grep -v '^>' fasta/genome.fa | wc -c > chr-size
 	a=$$(wc -c fasta/genome.fa | awk '{print $$1}'); l=$$(grep -o '>' fasta/genome.fa | wc -c); size=$$(echo "$$a-$$l" | bc); echo $$size > chr-size; 
 
 
