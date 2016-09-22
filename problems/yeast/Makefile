@@ -8,28 +8,28 @@ clean:
 
 fasta:
 	echo "Download files into \"fasta\" directory"
-	yeast=http://downloads.yeastgenome.org/sequence/S288C_reference/chromosomes/fasta/; \
+	yeast=http://downloads.yeastgenome.org/sequence/S288C_reference/chromosomes/fasta; \
 	if [[ ! -f fasta/download.success ]]; then \
 	  wget -nd -P fasta $$yeast/chr{01..16}.fsa; wget -nd -P fasta $$yeast/chrmt.fsa; echo SUCCESS > fasta/download.success;\
 	fi;
 
 
 genome: fasta
-	cat fasta/chr*.fa > fasta/genome.fa
-	for i in {01..16}; do sed 's/^>.*/>/' ./fasta/chr$$i.fsa > test >> fasta/genome.fa; done
-	sed 's/^>.*/>/' ./fasta/chrmt.fsa > test >> fasta/genome.fa
-	rm test
+	cat fasta/chr*.fsa > fasta/genome.fa
+	#for i in {01..16}; do sed 's/^>.*/>/' ./fasta/chr$$i.fsa > test >> fasta/genome.fa; done
+	#sed 's/^>.*/>/' ./fasta/chrmt.fsa > test >> fasta/genome.fa
+	#rm test
 	
 	
 
 chr-count: genome
-	grep '^>' fasta/genome.fa > chr-count
+	#grep -c '^>' fasta/genome.fa > chr-count
 	count=$$(grep -c '>' fasta/genome.fa); size=$$(echo "$$count-1" | bc); echo $$size  > chr-count
 
 
 chr-size: genome
 	grep -v '^>' fasta/genome.fa | wc -c > chr-size
-	a=$$(wc -c fasta/genome.fa | awk '{print $$1}'); l=$$(grep -o '>' fasta/genome.fa | wc -c); size=$$(echo "$$a-$$l" | bc); echo $$size > chr-size; 
+	#a=$$(wc -c fasta/genome.fa | awk '{print $$1}'); l=$$(grep -o '>' fasta/genome.fa | wc -c); size=$$(echo "$$a-$$l" | bc); echo $$size > chr-size; 
 
 
 features:
@@ -43,7 +43,7 @@ gene-count: features
 	cut -f 2 SGD_features.tab | grep -c 'ORF' > gene-count
 	
 verified-genes: features
-	cut -f 3 SGD_features.tab | grep -c 'Verified' > verified-genes
+	cut -f 3 SGD_features.tab | grep 'Verified' | grep -c -v 'Verified|silenced_gene' > verified-genes
 
 uncharacterized-genes: features
 	cut -f 3 SGD_features.tab | grep -c 'Uncharacterized' > uncharacterized-genes
@@ -55,9 +55,11 @@ verified-silent-genes: features
 	cut -f 3 SGD_features.tab | grep -c 'Verified|silenced_gene' > verified-silent-genes 
 
 gene-types: features
-	vs=$$(cat verified-silent-genes); d=$$(cat dubious-genes); u=$$(cat uncharacterized-genes); v=$$(cat verified-genes);\
-	count=$$(echo "$$vs+$$d+$$u+$$u" | bc);\
-	echo $$count > gene-types 
+	cut -f 3 SGD_features.tab | sort | uniq -c > gene-types 
+
+	#vs=$$(cat verified-silent-genes); d=$$(cat dubious-genes); u=$$(cat uncharacterized-genes); v=$$(cat verified-genes);\
+	#count=$$(echo "$$vs+$$d+$$u+$$u" | bc);\
+	#echo $$count > gene-types 
 
 palinsreg:
 	if [[ ! -f palinsreg.txt ]]; then\
