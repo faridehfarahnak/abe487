@@ -3,7 +3,7 @@
 all: clean fasta genome chr-count chr-size features gene-count verified-genes uncharacterized-genes verified-silent-genes dubious-genes gene-types palinsreg terminated-genes
 
 clean:
-	find . \( -name \*gene\* -o -name chr-\* \) -exec rm {} \;
+	find . \( -name \*gene\* -o -name chr-\* -o -name SGD_features.tab -o -name palinsreg.txt \) -exec rm {} \;
 	find ./fasta  \( -name \*.fsa -o -name genome.fa -o -name download.success \) -exec rm {} \;
 
 fasta:
